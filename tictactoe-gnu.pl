@@ -1,6 +1,5 @@
 % @author Aysuh Pateria <cs15btech11007@iith.ac.in>
-% Tic tac toe program witten in prolog. It uses the minimax algorithm to calculate next move.
-
+% Tic tac toe program witten in prolog. It uses the minmax algorithm to calculate next move.
 
 :-initialization(play).
 
@@ -49,8 +48,8 @@ omove(Board, A, Newboard).
 
 
 playIndex(Board, 9, MI, Best, Ans) :- Ans is MI, !.
-playIndex(Board, I, MI, Best, Ans) :-  nth(I, Board, El), El=0, I2 is I+1, omove(Board, I2, Newboard), minimax(Newboard, 1, V),  (V > Best -> NewBest is V, NewMI is I; NewBest is Best , NewMI is MI), playIndex(Board, I2, NewMI, NewBest, Ans),!.
-playIndex(Board, I, MI, Best, Ans) :-  nth(I, Board, El), \+(El=0), NI is I + 1, playIndex(Board, NI, MI, Best, Ans).
+playIndex(Board, I, MI, Best, Ans) :-  match(I, Board, El), El=0, I2 is I+1, omove(Board, I2, Newboard), minimax(Newboard, 1, V),  (V > Best -> NewBest is V, NewMI is I; NewBest is Best , NewMI is MI), playIndex(Board, I2, NewMI, NewBest, Ans),!.
+playIndex(Board, I, MI, Best, Ans) :-  match(I, Board, El), \+(El=0), NI is I + 1, playIndex(Board, NI, MI, Best, Ans).
 
 
 xmove([0,B,C,D,E,F,G,H,I], 1, [1,B,C,D,E,F,G,H,I]).
@@ -97,14 +96,30 @@ evaluate(Board, N, 0).
 minimax(Board, P, V) :- evaluate(Board, 2, A), \+(A=0), V is A, !.
 minimax(Board, P, V) :- \+(areMovesLeft(Board)), V is 0, !.
 
+minimax(Board, 1, V) :-  Best is 1000, loopAll(Board, 1, 0, Best, Ans), V is Ans,!.
+
+minimax(Board, 2, V) :-  Best is -1000, loopAll(Board, 2, 0, Best, Ans), V is Ans,!.
+
 % minimizer move.
 loopAll(Board, 1, 9, Best, Ans) :- Ans is Best, !.
-minimax(Board, 1, V) :-  Best is 1000, loopAll(Board, 1, 0, Best, Ans), V is Ans,!.
-loopAll(Board, 1, I, Best, Ans) :- nth(I, Board, El), El=0, I2 is I+1, xmove(Board, I2, Newboard),minimax(Newboard, 2, V), NewBest is min(Best, V), loopAll(Board, 1, I2, NewBest, Ans).
-loopAll(Board, 1, I, Best, Ans) :- nth(I, Board, El), \+(El=0), NI is I+1,  loopAll(Board, 1, NI, Best, Ans).
+loopAll(Board, 1, I, Best, Ans) :- match(I, Board, El), El=0, I2 is I+1, xmove(Board, I2, Newboard),minimax(Newboard, 2, V), NewBest is min(Best, V), loopAll(Board, 1, I2, NewBest, Ans).
+loopAll(Board, 1, I, Best, Ans) :- match(I, Board, El), \+(El=0), NI is I+1,  loopAll(Board, 1, NI, Best, Ans).
 
 % maximizer move.
 loopAll(Board, 2, 9, Best, Ans) :- Ans is Best,!.
-minimax(Board, 2, V) :-  Best is -1000, loopAll(Board, 2, 0, Best, Ans), V is Ans,!.
-loopAll(Board, 2, I, Best, Ans) :- nth(I, Board, El), El=0, I2 is I+1, omove(Board, I2, Newboard),  minimax(Newboard, 1, V),  NewBest is max(Best, V), loopAll(Board, 2, I2, NewBest, Ans).
-loopAll(Board, 2, I, Best, Ans) :- nth(I, Board, El), \+(El=0), NI is I+1,  loopAll(Board, 2, NI, Best, Ans).
+loopAll(Board, 2, I, Best, Ans) :- match(I, Board, El), El=0, I2 is I+1, omove(Board, I2, Newboard),  minimax(Newboard, 1, V),  NewBest is max(Best, V), loopAll(Board, 2, I2, NewBest, Ans).
+loopAll(Board, 2, I, Best, Ans) :- match(I, Board, El), \+(El=0), NI is I+1,  loopAll(Board, 2, NI, Best, Ans).
+
+% match function
+
+match(0, [Head|_], Head) :- !.
+
+match(N, [_|Tail], Elem) :-
+    nonvar(N),
+    M is N-1,
+    match(M, Tail, Elem).
+
+match(N,[_|T],Item) :-       % Clause added KJ 4-5-87 to allow mode
+    var(N),         % match(-,+,+)
+    match(M,T,Item),
+    N is M + 1.
