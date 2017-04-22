@@ -1,5 +1,5 @@
 % @author Aysuh Pateria <cs15btech11007@iith.ac.in>
-% Tic tac toe program witten in prolog. It uses the minmax algorithm to calculate next move.
+% Tic tac toe program witten in prolog. It uses the minimax algorithm to calculate next move.
 
 
 :-initialization(play).
